@@ -7,7 +7,10 @@ import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -33,57 +36,38 @@ class BmiBrain(activity: Activity) {
 
     private val dataStore: DataStore<Preferences> = activity._dataStore
 
-    var name: String
-        get() = runBlocking{
-            withContext(Dispatchers.Default){
-                dataStore.getValueFlow(NAME_KEY, "").first()
-            }
-        }
-        set(value) = runBlocking {
-            withContext(Dispatchers.Default){
-                dataStore.edit {
-                    it[NAME_KEY] = value
-                }
-            }
-        }
+    suspend fun saveName(name: String) {
+        dataStore.edit { it[NAME_KEY] = name }
+    }
 
+    suspend fun getName(): String {
+        return dataStore.getValueFlow(NAME_KEY, "").first()
+    }
 
-    var height: Float
-        get() = runBlocking{
-            withContext(Dispatchers.Default){
-                dataStore.getValueFlow(HEIGHT_KEY, 0f).first()
-            }
-        }
-        set(value) = runBlocking {
-            withContext(Dispatchers.Default){
-                dataStore.edit {
-                    it[HEIGHT_KEY] = value
-                }
-            }
-        }
+    suspend fun saveHeight(height: Float) {
+        dataStore.edit { it[HEIGHT_KEY] = height }
+    }
 
-    var weight: Int
-        get() = runBlocking{
-            withContext(Dispatchers.Default){
-                dataStore.getValueFlow(WEIGHT_KEY, 0).first()
-            }
-        }
-        set(value) = runBlocking {
-            withContext(Dispatchers.Default){
-                dataStore.edit {
-                    it[WEIGHT_KEY] = value
-                }
-            }
-        }
+    suspend fun getHeight(): Float {
+        return dataStore.getValueFlow(HEIGHT_KEY, 0f).first()
+    }
+
+    suspend fun saveWeight(weight: Int) {
+        dataStore.edit { it[WEIGHT_KEY] = weight }
+    }
+
+    suspend fun getWeight(): Int {
+        return dataStore.getValueFlow(WEIGHT_KEY, 0).first()
+    }
 
     var isMale: Boolean
-        get() = runBlocking{
-            withContext(Dispatchers.Default){
+        get() = runBlocking {
+            withContext(Dispatchers.Default) {
                 dataStore.getValueFlow(IS_MALE_KEY, false).first()
             }
         }
         set(value) = runBlocking {
-            withContext(Dispatchers.Default){
+            withContext(Dispatchers.Default) {
                 dataStore.edit {
                     it[IS_MALE_KEY] = value
                 }
@@ -91,32 +75,26 @@ class BmiBrain(activity: Activity) {
         }
 
     var isFemale: Boolean
-        get() = runBlocking{
-            withContext(Dispatchers.Default){
+        get() = runBlocking {
+            withContext(Dispatchers.Default) {
                 dataStore.getValueFlow(IS_FEMALE_KEY, false).first()
             }
         }
         set(value) = runBlocking {
-            withContext(Dispatchers.Default){
+            withContext(Dispatchers.Default) {
                 dataStore.edit {
                     it[IS_FEMALE_KEY] = value
                 }
             }
         }
 
-    var bmi: Float
-        get() = runBlocking{
-            withContext(Dispatchers.Default){
-                dataStore.getValueFlow(BMI_KEY, 0f).first()
-            }
-        }
-        set(value) = runBlocking {
-            withContext(Dispatchers.Default){
-                dataStore.edit {
-                    it[BMI_KEY] = value
-                }
-            }
-        }
+    suspend fun saveBmi(bmi: Float) {
+        dataStore.edit { it[BMI_KEY] = bmi }
+    }
+
+    suspend fun getBmi(): Float {
+        return dataStore.getValueFlow(BMI_KEY, 0f).first()
+    }
 
     fun getSuggest(bmi: Float): String {
         return when {
