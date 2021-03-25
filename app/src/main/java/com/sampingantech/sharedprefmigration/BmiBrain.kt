@@ -2,73 +2,120 @@ package com.sampingantech.sharedprefmigration
 
 import android.app.Activity
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.SharedPreferencesMigration
+import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import java.io.IOException
 
 class BmiBrain(activity: Activity) {
 
     companion object {
-        private const val NAME_KEY = "NAME_KEY"
-        private const val HEIGHT_KEY = "HEIGHT_KEY"
-        private const val WEIGHT_KEY = "WEIGHT_KEY"
-        private const val IS_MALE_KEY = "IS_MALE_KEY"
-        private const val IS_FEMALE_KEY = "IS_FEMALE_KEY"
-        private const val BMI_KEY = "BMI_KEY"
+        private val NAME_KEY = stringPreferencesKey("NAME_KEY")
+        private val HEIGHT_KEY = floatPreferencesKey("HEIGHT_KEY")
+        private val WEIGHT_KEY = intPreferencesKey("WEIGHT_KEY")
+        private val IS_MALE_KEY = booleanPreferencesKey("IS_MALE_KEY")
+        private val IS_FEMALE_KEY = booleanPreferencesKey("IS_FEMALE_KEY")
+        private val BMI_KEY = floatPreferencesKey("BMI_KEY")
     }
 
-    private val preferences = activity.getSharedPreferences("pref_name", Context.MODE_PRIVATE)
-    private val editor = preferences.edit()
+    private val Context._dataStore: DataStore<Preferences> by preferencesDataStore(
+        name = "sampingan_data_store",
+        produceMigrations = ::sharedPreferencesMigration
+    )
+
+    private fun sharedPreferencesMigration(context: Context) =
+        listOf(SharedPreferencesMigration(context, "pref_name"))
+
+    private val dataStore: DataStore<Preferences> = activity._dataStore
 
     var name: String
-        get() {
-            return preferences.getString(NAME_KEY, "").orEmpty()
+        get() = runBlocking{
+            withContext(Dispatchers.Default){
+                dataStore.getValueFlow(NAME_KEY, "").first()
+            }
         }
-        set(value) {
-            editor.putString(NAME_KEY, value)
-            editor.commit()
+        set(value) = runBlocking {
+            withContext(Dispatchers.Default){
+                dataStore.edit {
+                    it[NAME_KEY] = value
+                }
+            }
         }
 
+
     var height: Float
-        get() {
-            return preferences.getFloat(HEIGHT_KEY, 0F)
+        get() = runBlocking{
+            withContext(Dispatchers.Default){
+                dataStore.getValueFlow(HEIGHT_KEY, 0f).first()
+            }
         }
-        set(value) {
-            editor.putFloat(HEIGHT_KEY, value)
-            editor.commit()
+        set(value) = runBlocking {
+            withContext(Dispatchers.Default){
+                dataStore.edit {
+                    it[HEIGHT_KEY] = value
+                }
+            }
         }
 
     var weight: Int
-        get() {
-            return preferences.getInt(WEIGHT_KEY, 0)
+        get() = runBlocking{
+            withContext(Dispatchers.Default){
+                dataStore.getValueFlow(WEIGHT_KEY, 0).first()
+            }
         }
-        set(value) {
-            editor.putInt(WEIGHT_KEY, value)
-            editor.commit()
+        set(value) = runBlocking {
+            withContext(Dispatchers.Default){
+                dataStore.edit {
+                    it[WEIGHT_KEY] = value
+                }
+            }
         }
 
     var isMale: Boolean
-        get() {
-            return preferences.getBoolean(IS_MALE_KEY, false)
+        get() = runBlocking{
+            withContext(Dispatchers.Default){
+                dataStore.getValueFlow(IS_MALE_KEY, false).first()
+            }
         }
-        set(value) {
-            editor.putBoolean(IS_MALE_KEY, value)
-            editor.commit()
+        set(value) = runBlocking {
+            withContext(Dispatchers.Default){
+                dataStore.edit {
+                    it[IS_MALE_KEY] = value
+                }
+            }
         }
 
     var isFemale: Boolean
-        get() {
-            return preferences.getBoolean(IS_FEMALE_KEY, false)
+        get() = runBlocking{
+            withContext(Dispatchers.Default){
+                dataStore.getValueFlow(IS_FEMALE_KEY, false).first()
+            }
         }
-        set(value) {
-            editor.putBoolean(IS_FEMALE_KEY, value)
-            editor.commit()
+        set(value) = runBlocking {
+            withContext(Dispatchers.Default){
+                dataStore.edit {
+                    it[IS_FEMALE_KEY] = value
+                }
+            }
         }
 
     var bmi: Float
-        get() {
-            return preferences.getFloat(BMI_KEY, 0F)
+        get() = runBlocking{
+            withContext(Dispatchers.Default){
+                dataStore.getValueFlow(BMI_KEY, 0f).first()
+            }
         }
-        set(value) {
-            editor.putFloat(BMI_KEY, value)
-            editor.commit()
+        set(value) = runBlocking {
+            withContext(Dispatchers.Default){
+                dataStore.edit {
+                    it[BMI_KEY] = value
+                }
+            }
         }
 
     fun getSuggest(bmi: Float): String {
@@ -78,4 +125,21 @@ class BmiBrain(activity: Activity) {
             else -> "are you sick?"
         }
     }
+}
+
+
+fun <T> DataStore<Preferences>.getValueFlow(
+    key: Preferences.Key<T>,
+    defaultValue: T,
+): Flow<T> {
+    return this.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            preferences[key] ?: defaultValue
+        }
 }
