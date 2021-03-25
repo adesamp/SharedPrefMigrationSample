@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/edtName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/name_hint"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:maxLength="6"
+        android:id="@+id/edtHeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/height_hint"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/edtName" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kilogram"
+        app:layout_constraintBottom_toBottomOf="@id/edtWeight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/edtWeight" />
+
+    <EditText
+        android:maxLength="6"
+        android:id="@+id/edtWeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/weight_hint"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/edtHeight" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Meter"
+        app:layout_constraintBottom_toBottomOf="@id/edtHeight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/edtHeight" />
+
+    <TextView
+        android:id="@+id/tvGenderHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="And You're"
+        app:layout_constraintTop_toBottomOf="@id/edtWeight" />
+
+    <RadioGroup
+        android:id="@+id/rgGender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tvGenderHint">
+
+        <RadioButton
+            android:id="@+id/rbMale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="male" />
+
+        <RadioButton
+            android:id="@+id/rbFemale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="female" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnCalculate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="20dp"
+        android:text="calculate"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/tvBmiHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your BMI is :"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@id/btnCalculate"
+        app:layout_constraintTop_toBottomOf="@id/rgGender" />
+
+    <TextView
+        android:id="@+id/tvBmi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/tvBmiHint" />
+
+    <TextView
+        android:id="@+id/tvSuggest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Eat more"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/tvBmi" />
+</androidx.constraintlayout.widget.ConstraintLayout>

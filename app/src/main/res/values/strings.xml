@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">SharedPrefMigration</string>
+    <string name="name_hint">Enter your Name</string>
+    <string name="height_hint">Enter your Height</string>
+    <string name="weight_hint">Enter your Weight</string>
+</resources>
