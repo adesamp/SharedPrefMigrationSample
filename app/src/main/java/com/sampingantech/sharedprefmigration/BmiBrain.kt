@@ -6,13 +6,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class BmiBrain(activity: Activity) {
@@ -60,33 +57,21 @@ class BmiBrain(activity: Activity) {
         return dataStore.getValueFlow(WEIGHT_KEY, 0).first()
     }
 
-    var isMale: Boolean
-        get() = runBlocking {
-            withContext(Dispatchers.Default) {
-                dataStore.getValueFlow(IS_MALE_KEY, false).first()
-            }
-        }
-        set(value) = runBlocking {
-            withContext(Dispatchers.Default) {
-                dataStore.edit {
-                    it[IS_MALE_KEY] = value
-                }
-            }
-        }
 
-    var isFemale: Boolean
-        get() = runBlocking {
-            withContext(Dispatchers.Default) {
-                dataStore.getValueFlow(IS_FEMALE_KEY, false).first()
-            }
+    suspend fun saveGender(male: Boolean, female: Boolean) {
+        dataStore.edit {
+            it[IS_MALE_KEY] = male
+            it[IS_FEMALE_KEY] = female
         }
-        set(value) = runBlocking {
-            withContext(Dispatchers.Default) {
-                dataStore.edit {
-                    it[IS_FEMALE_KEY] = value
-                }
-            }
-        }
+    }
+
+    suspend fun isMale(): Boolean {
+        return dataStore.getValueFlow(IS_MALE_KEY, false).first()
+    }
+
+    suspend fun isFemale(): Boolean {
+        return dataStore.getValueFlow(IS_FEMALE_KEY, false).first()
+    }
 
     suspend fun saveBmi(bmi: Float) {
         dataStore.edit { it[BMI_KEY] = bmi }
