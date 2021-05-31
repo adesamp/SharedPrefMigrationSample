@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.sampingantech.sharedprefmigration.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -27,15 +27,13 @@ class MainActivity : AppCompatActivity() {
                 val weight = edtWeight.text.toString().toInt()
                 val height = edtHeight.text.toString().toFloat()
                 val bmi = weight / (height * height)
-
-                runBlocking {
-                    withContext(Dispatchers.IO) {
-                        bmiBrain.saveName(edtName.text.toString())
-                        bmiBrain.saveHeight(height)
-                        bmiBrain.saveWeight(weight)
-                        bmiBrain.saveBmi(bmi)
-                    }
+                lifecycleScope.launch(Dispatchers.IO) {
+                    bmiBrain.saveName(edtName.text.toString())
+                    bmiBrain.saveHeight(height)
+                    bmiBrain.saveWeight(weight)
+                    bmiBrain.saveBmi(bmi)
                 }
+
                 bmiBrain.isMale = rbMale.isChecked
                 bmiBrain.isFemale = rbFemale.isChecked
 
