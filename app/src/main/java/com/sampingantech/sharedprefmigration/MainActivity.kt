@@ -2,16 +2,12 @@ package com.sampingantech.sharedprefmigration
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.sampingantech.sharedprefmigration.databinding.ActivityMainBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var bmiBrain: BmiBrain
-
+    private val viewModel: MainViewModel by viewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -27,18 +23,12 @@ class MainActivity : AppCompatActivity() {
                 val weight = edtWeight.text.toString().toInt()
                 val height = edtHeight.text.toString().toFloat()
                 val bmi = weight / (height * height)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    bmiBrain.saveName(edtName.text.toString())
-                    bmiBrain.saveHeight(height)
-                    bmiBrain.saveWeight(weight)
-                    bmiBrain.saveBmi(bmi)
-                }
-
-                bmiBrain.isMale = rbMale.isChecked
-                bmiBrain.isFemale = rbFemale.isChecked
-
-                tvBmi.text = String.format("%.2f", bmi)
-                tvSuggest.text = bmiBrain.getSuggest(bmi)
+                val name = edtName.text.toString()
+                viewModel.saveName(name)
+                viewModel.saveWeight(weight)
+                viewModel.saveHeight(height)
+                viewModel.saveBmi(bmi)
+                viewModel.saveGender(getGender())
             } else {
                 edtWeight.error = "input your weight"
                 edtHeight.error = "input your height"
@@ -46,26 +36,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getGender() = when {
+        binding.rbMale.isChecked -> BmiBrain.Companion.Gender.Male
+        binding.rbFemale.isChecked -> BmiBrain.Companion.Gender.Female
+        else -> BmiBrain.Companion.Gender.Unselected
+    }
+
     private fun initVar() {
-        bmiBrain = BmiBrain(this)
-        binding.apply {
-            lifecycleScope.launchWhenStarted {
-                edtName.setText(bmiBrain.getName())
-                bmiBrain.getHeight().let {
-                    if (it != 0F) edtHeight.setText(it.toString())
-                }
-                bmiBrain.getWeight().let {
-                    if (it != 0) edtWeight.setText(it.toString())
-                }
-                bmiBrain.getBmi().let {
-                    if (it != 0F) {
-                        tvBmi.text = it.toString()
-                        tvSuggest.text = bmiBrain.getSuggest(it)
-                    }
-                }
-            }
-            rbMale.isChecked = bmiBrain.isMale
-            rbFemale.isChecked = bmiBrain.isFemale
+        viewModel.name.observe(this, ::setName)
+        viewModel.height.observe(this, ::setHeight)
+        viewModel.weight.observe(this, ::setWeight)
+        viewModel.gender.observe(this, ::setGender)
+        viewModel.bmiKey.observe(this, ::setBmiKey)
+        viewModel.suggest.observe(this, ::setSuggest)
+        viewModel.fetch()
+    }
+
+    private fun setName(name: String?) = binding.edtName.setText(name)
+    private fun setSuggest(s: String?) = binding.tvSuggest.setText(s)
+    private fun setBmiKey(fl: Float?) = binding.tvBmi.setText(String.format("%.2f", fl))
+    private fun setWeight(i: Int?) = binding.edtWeight.setText(i.toString())
+    private fun setHeight(fl: Float?) = binding.edtHeight.setText(fl.toString())
+
+    private fun setGender(gender: BmiBrain.Companion.Gender?) = when (gender) {
+        BmiBrain.Companion.Gender.Female -> binding.rbFemale.isChecked = true
+        BmiBrain.Companion.Gender.Male -> binding.rbMale.isChecked = true
+        else -> {
+            binding.rbFemale.isChecked = false
+            binding.rbFemale.isChecked = false
         }
     }
+
 }
