@@ -49,14 +49,13 @@ class MainActivity : AppCompatActivity() {
         viewModel.gender.observe(this, ::setGender)
         viewModel.bmiKey.observe(this, ::setBmiKey)
         viewModel.suggest.observe(this, ::setSuggest)
-        viewModel.fetch()
     }
 
-    private fun setName(name: String?) = binding.edtName.setText(name)
-    private fun setSuggest(s: String?) = binding.tvSuggest.setText(s)
-    private fun setBmiKey(fl: Float?) = binding.tvBmi.setText(String.format("%.2f", fl))
-    private fun setWeight(i: Int?) = binding.edtWeight.setText(i.toString())
-    private fun setHeight(fl: Float?) = binding.edtHeight.setText(fl.toString())
+    private fun setName(name: String?) = name?.let { binding.edtName.setText(name) }
+    private fun setSuggest(s: String?) = s?.let { binding.tvSuggest.text = s }
+    private fun setBmiKey(fl: Float?) = fl?.let { binding.tvBmi.text = String.format("%.2f", fl) }
+    private fun setWeight(i: Int?) = i?.let { binding.edtWeight.setText(i.toString()) }
+    private fun setHeight(fl: Float?) = fl?.let { binding.edtHeight.setText(fl.toString()) }
 
     private fun setGender(gender: BmiBrain.Companion.Gender?) = when (gender) {
         BmiBrain.Companion.Gender.Female -> binding.rbFemale.isChecked = true
