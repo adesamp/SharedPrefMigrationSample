@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.sampingantech.sharedprefmigration.databinding.ActivityMainBinding
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -50,21 +51,28 @@ class MainActivity : AppCompatActivity() {
         bmiBrain = BmiBrain(this)
         binding.apply {
             lifecycleScope.launch {
-                edtName.setText(bmiBrain.getName())
-                bmiBrain.getHeight().let {
+                val name = async { bmiBrain.getName() }
+                val height = async { bmiBrain.getHeight() }
+                val weight = async { bmiBrain.getWeight() }
+                val bmi = async { bmiBrain.getBmi() }
+                val isMale = async { bmiBrain.isMale() }
+                val isFemale = async { bmiBrain.isFemale() }
+
+                edtName.setText(name.await())
+                height.await().let {
                     if (it != 0F) edtHeight.setText(it.toString())
                 }
-                bmiBrain.getWeight().let {
+                weight.await().let {
                     if (it != 0) edtWeight.setText(it.toString())
                 }
-                bmiBrain.getBmi().let {
+                bmi.await().let {
                     if (it != 0F) {
                         tvBmi.text = it.toString()
                         tvSuggest.text = bmiBrain.getSuggest(it)
                     }
                 }
-                rbMale.isChecked = bmiBrain.isMale()
-                rbFemale.isChecked = bmiBrain.isFemale()
+                rbMale.isChecked = isMale.await()
+                rbFemale.isChecked = isFemale.await()
             }
         }
     }
